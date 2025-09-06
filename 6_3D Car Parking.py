@@ -35,6 +35,45 @@ player_vehicle = {
     'length': 40, 'width': 20, 'damage_level': 0
 }
 
+def draw_text(x, y, text, font=GLUT_BITMAP_HELVETICA_18):
+    glColor3f(1, 1, 1)
+    glMatrixMode(GL_PROJECTION)
+    glPushMatrix()
+    glLoadIdentity()
+    gluOrtho2D(0, 1000, 0, 800)
+    glMatrixMode(GL_MODELVIEW)
+    glPushMatrix()
+    glLoadIdentity()
+    glRasterPos2f(x, y)
+    for ch in text:
+        glutBitmapCharacter(font, ord(ch))
+    glPopMatrix()
+    glMatrixMode(GL_PROJECTION)
+    glPopMatrix()
+    glMatrixMode(GL_MODELVIEW)
+
+def draw_hud():
+    speed_kmh = abs(player_vehicle['speed']) * 10
+    draw_text(10, 770, f"Speed: {speed_kmh:.0f} km/h")
+    draw_text(10, 750, f"Health: {player_vehicle['health']:.0f}%")
+    draw_text(10, 730, f"Gear: {player_vehicle['gear']}")
+    draw_text(10, 710, f"Score: {game_status['score']}")
+    draw_text(10, 690, f"Time: {game_status['time_left']:.1f}s")
+    draw_text(10, 670, f"Weather: {weather_types[current_weather_idx]} (O)")
+    
+    cam_modes = ['Top-Down (Orbit)', 'Third-Person', 'First-Person']
+    draw_text(800, 770, f"Camera: {cam_modes[cam_mode]} (C)")
+    draw_text(800, 750, f"Vehicle: {player_vehicle['type']}")
+
+    if game_status['game_over']:
+        draw_text(450, 400, "GAME OVER")
+        draw_text(430, 370, "Press R to restart")
+    if game_status['level_complete']:
+        draw_text(420, 400, "LEVEL COMPLETE!")
+        draw_text(410, 370, "Press N for next level")
+    if game_status['paused']:
+        draw_text(470, 400, "PAUSED")
+
 def update_vehicle_physics(dt):
     if game_status['paused'] or game_status['game_over']: return
     vehicle = player_vehicle
