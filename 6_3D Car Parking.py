@@ -58,6 +58,16 @@ def draw_text(x, y, text, font=GLUT_BITMAP_HELVETICA_18):
     glPopMatrix()
     glMatrixMode(GL_MODELVIEW)
 
+def draw_skid_marks():
+    debris_color = apply_weather_color([0.1, 0.1, 0.1])
+    glColor3f(*debris_color)
+    for mark in skid_marks:
+        glPushMatrix()
+        glTranslatef(mark['pos'][0], mark['pos'][1], 0.1)
+        glScalef(2, 2, 0.5)
+        glutSolidCube(1)
+        glPopMatrix()
+
 def draw_hud():
     speed_kmh = abs(player_vehicle['speed']) * 10
     draw_text(10, 770, f"Speed: {speed_kmh:.0f} km/h")
@@ -125,6 +135,17 @@ def handle_collision(collision_type, object_hit):
     if player_vehicle['health'] <= 0:
         player_vehicle['health'] = 0
         game_status['game_over'] = True
+
+def add_skid_marks(pos, angle):
+    if len(skid_marks) > 100: skid_marks.pop(0)
+    rad, offset_rad = math.radians(angle), math.radians(angle + 90)
+    width = vehicle_types[player_vehicle['type']]['width'] * 0.4
+    for side in [-1, 1]:
+        debris_pos = [
+            pos[0] - math.cos(offset_rad) * width * side - math.cos(rad) * 20,
+            pos[1] - math.sin(offset_rad) * width * side - math.sin(rad) * 20
+        ]
+        skid_marks.append({'pos': debris_pos, 'life': 120})
 
 def keyboard_listener(key, x, y):
     global current_weather_idx
