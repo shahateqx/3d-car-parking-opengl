@@ -35,6 +35,12 @@ player_vehicle = {
     'length': 40, 'width': 20, 'damage_level': 0
 }
 
+game_status = {
+    'score': 0, 'level': 1, 'time_left': 60, 'game_over': False,
+    'paused': False, 'level_complete': False, 'mode': 'CLASSIC',
+    'collisions': 0, 'cheat_mode': False
+}
+
 def draw_text(x, y, text, font=GLUT_BITMAP_HELVETICA_18):
     glColor3f(1, 1, 1)
     glMatrixMode(GL_PROJECTION)
