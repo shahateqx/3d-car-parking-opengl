@@ -8,6 +8,34 @@ import time
 
 cam_mode = 1
 
+vehicle_types = {
+    'SEDAN': {
+        'length': 40, 'width': 20, 'max_speed': 8, 'acceleration': 0.3,
+        'turn_rate': 4, 'brake_power': 0.5, 'color': [0.8, 0.2, 0.2]
+    },
+    'SUV': {
+        'length': 50, 'width': 25, 'max_speed': 6, 'acceleration': 0.2,
+        'turn_rate': 3, 'brake_power': 0.7, 'color': [0.2, 0.6, 0.2]
+    },
+    'SPORTS_CAR': {
+        'length': 35, 'width': 18, 'max_speed': 12, 'acceleration': 0.5,
+        'turn_rate': 6, 'brake_power': 0.8, 'color': [0.8, 0.8, 0.2]
+    },
+    'TRUCK': {
+        'length': 60, 'width': 30, 'max_speed': 4, 'acceleration': 0.15,
+        'turn_rate': 2, 'brake_power': 0.4, 'color': [0.4, 0.4, 0.8]
+    }
+}
+
+player_vehicle = {
+    'pos': [0, 0, 5], 'angle': 0, 'speed': 0, 'max_speed': 8,
+    'acceleration': 0.3, 'turn_rate': 4, 'brake_power': 0.5,
+    'health': MAX_HEALTH, 'gear': 'DRIVE', 'type': 'SEDAN',
+    'length': 40, 'width': 20, 'damage_level': 0
+}
+
+
+
 def keyboard_listener(key, x, y):
     global current_weather_idx
 
@@ -43,8 +71,12 @@ def keyboard_listener(key, x, y):
         vehicle_map = {b'1': 'SEDAN', b'2': 'SUV', b'3': 'SPORTS_CAR', b'4': 'TRUCK'}
         change_vehicle(vehicle_map[key])
 
-
-
+def change_vehicle(vehicle_type):
+    player_vehicle['type'] = vehicle_type
+    vehicle_data = vehicle_types[vehicle_type]
+    for key, value in vehicle_data.items():
+        if key in player_vehicle:
+            player_vehicle[key] = value
 
 def main():
     glutInit()
