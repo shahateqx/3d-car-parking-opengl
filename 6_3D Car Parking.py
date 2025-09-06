@@ -7,6 +7,7 @@ import time
 
 
 cam_mode = 1
+collision_sparks = []
 
 vehicle_types = {
     'SEDAN': {
@@ -34,7 +35,51 @@ player_vehicle = {
     'length': 40, 'width': 20, 'damage_level': 0
 }
 
+def update_vehicle_physics(dt):
+    if game_status['paused'] or game_status['game_over']: return
+    vehicle = player_vehicle
+    time_factor = dt * 60
 
+    if vehicle['gear'] == 'DRIVE' and vehicle['speed'] < 0: vehicle['speed'] = min(0, vehicle['speed'] + vehicle['brake_power'] * time_factor)
+    elif vehicle['gear'] == 'REVERSE' and vehicle['speed'] > 0: vehicle['speed'] = max(0, vehicle['speed'] - vehicle['brake_power'] * time_factor)
+    
+    vehicle['speed'] *= (0.98 ** time_factor)
+    if abs(vehicle['speed']) < 0.01: vehicle['speed'] = 0
+    
+    if abs(vehicle['speed']) > 0:
+        rad = math.radians(vehicle['angle'])
+        dx = math.cos(rad) * vehicle['speed'] * time_factor
+        dy = math.sin(rad) * vehicle['speed'] * time_factor
+        vehicle['pos'][0] += dx
+        vehicle['pos'][1] += dy
+        
+        if abs(vehicle['speed']) > vehicle['max_speed'] * 0.7:
+            add_skid_marks(vehicle['pos'], vehicle['angle'])
+
+def handle_collision(collision_type, object_hit):
+    if game_status['cheat_mode']: return
+    
+    damage = abs(player_vehicle['speed']) * 2
+    player_vehicle['health'] -= damage
+    player_vehicle['damage_level'] += damage
+    game_status['collisions'] += 1
+    player_vehicle['speed'] *= -0.3
+    
+    if collision_type == 'PEDESTRIAN':
+        object_hit['active'] = False
+        for _ in range(15):
+            collision_sparks.append({
+                'pos': list(player_vehicle['pos']),
+                'velocity': [random.uniform(-3, 3), random.uniform(-3, 3), random.uniform(2, 6)],
+                'color': [1, 0, 0],
+                'life': 60
+            })
+    elif collision_type == 'OBSTACLE' or collision_type == 'CAR':
+        game_status['game_over'] = True
+
+    if player_vehicle['health'] <= 0:
+        player_vehicle['health'] = 0
+        game_status['game_over'] = True
 
 def keyboard_listener(key, x, y):
     global current_weather_idx
